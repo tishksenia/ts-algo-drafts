@@ -10,11 +10,7 @@ class List<T> {
     this.head = value ? { value, next: undefined } : undefined;
   }
 
-  destroy(): void {
-    this.head = undefined;
-  }
-
-  print(): void {
+  getElementsToPrint(): ListItem<T>[] {
     let iterator = this.head;
     let elements = [];
     if (this.head) {
@@ -24,7 +20,15 @@ class List<T> {
       iterator = iterator.next;
       elements.push(iterator.value);
     }
-    console.log(elements);
+    return elements;
+  }
+
+  print(): void {
+    console.log(this.getElementsToPrint());
+  }
+
+  toString() {
+    return this.getElementsToPrint();
   }
 
   add(value: T): void {
@@ -40,18 +44,28 @@ class List<T> {
     }
   }
 
-  remove(value: T): void {
+  remove(
+    value: T | number | string,
+    compareFunction?: (a: unknown, b: unknown) => Boolean
+  ): void {
+    let equals = compareFunction || ((a, b) => a === b);
+
     let iterator = this.head;
     let previousElement = undefined;
-    while (iterator?.next && iterator?.value !== value) {
+
+    while (iterator?.next && !equals(value, iterator?.value)) {
       previousElement = iterator;
       iterator = iterator.next;
     }
-    if (previousElement && iterator?.value === value) {
+    if (previousElement && equals(value, iterator?.value)) {
       previousElement.next = iterator.next;
     } else if (!previousElement) {
       this.head = iterator.next;
     }
+  }
+
+  destroy(): void {
+    this.head = undefined;
   }
 
   getTail(): ListItem<T> {
@@ -62,18 +76,27 @@ class List<T> {
     return iterator;
   }
 
+  getHead(): ListItem<T> {
+    return this.head;
+  }
+
   exists(value: T): boolean {
     let element = this.getElement(value);
     return Boolean(element);
   }
 
-  getElement(value: T): ListItem<T> | undefined {
+  getElement(
+    value: T | number | string,
+    compareFunction?: (a: unknown, b: unknown) => Boolean
+  ): ListItem<T> | undefined {
+    let equals = compareFunction || ((a, b) => a === b);
+
     let iterator = this.head;
-    while (iterator?.next && iterator?.value !== value) {
+
+    while (iterator?.next && !equals(value, iterator.value)) {
       iterator = iterator.next;
     }
-
-    return iterator?.value === value ? iterator : undefined;
+    return equals(value, iterator?.value) ? iterator : undefined;
   }
 }
 
